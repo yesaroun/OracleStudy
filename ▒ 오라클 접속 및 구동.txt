@@ -1,0 +1,247 @@
+--■■■ 오라클 접속 및 구동 ■■■--
+
+--(명령 프롬프트 상태에서...)
+
+--○ 접속된 사용자 없이 단순히 SQL 프롬프트만 띄우도록 하겠다.
+
+C:\Users\akor1>sqlplus/nolog
+--==>>
+/*
+SQL*Plus: Release 11.2.0.2.0 Production on 화 2월 15 17:11:24 2022
+Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+SQL>
+*/
+
+-- ※ 『sqlplus』는 SQL(Structed Query Language, 구조화된 질의어, 쿼리문)을 수행하기 위해 Oracle 에서 제공하는
+--     도구(툴, 유틸리티)이다.
+
+C:\oraclexe\app\oracle\product\11.2.0\server\bin
+여기에 sqlplus.exe가 있을거고 이거를 실행시킨거다.
+그리고 저 경로를 찾아 실행시킨게 아니라 환경변수가 설치되면서 지정된거임
+
+-- ※ 『C:\oraclexe\app\oracle\product\11.2.0\server\bin』
+--     경로에 존재하는 『 sqlplus.exe 』
+--     이미 이 경로가 환경변수 path에 등록되어 있으므로
+--     『C:\>sqlplus』와 같이 명령어 사용이 가능한 상태인것이다.
+
+SQL> dir
+--==>>SP2-0042: unknown command "dir" - rest of line ignored.
+-- ※ 일반적인 도스 명령어(윈도우 명령어)를 수행할 수 없다.
+--     (즉, 수행할 수 있는 상태나 환경이 아니다.)
+
+SQL> show user
+--==>>USER is ""
+--> 현재 접속한 사용자 계정을 조회하는 구문
+
+
+--○ 첫 번째 관리자 계정인 『sys』로 연결해본다.
+(C:\Users\akor1>sqlplus sys/java006$ as sysdba 이건 sys를 sysdba(권한임)로써 들어간다는거임)
+C:\Users\akor1>sqlplus sys/java006$ as sysdba
+--==>>
+/*
+SQL*Plus: Release 11.2.0.2.0 Production on 수 2월 16 09:18:11 2022
+Copyright (c) 1982, 2014, Oracle.  All rights reserved.
+
+Connected to:
+Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production
+*/
+
+--○ 접속한 사용자 조회
+SQL> show user
+--==>> USER is "SYS"
+
+--○ 접속 종료
+SQL> disconnect
+Disconnected from Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production
+
+
+--○ 다시 『sys』로 접속했던 구문 사용
+SQL> sqlplus sys/java006$ as sysdba
+SP2-0734: unknown command beginning "sqlplus sy..." - rest of line ignored.
+
+--○ 접속된 사용자 확인
+SQL> show user
+--==>>USER is ""
+
+--○ 다시 『sys』로 접속
+SQL> connect sys/java006$ as sysdba
+//--==>>Connected.
+
+
+
+C:\>sqlplus sys/java006$ as sysdba
+(명령프롬프트 상태에서는 이렇게 접속)
+SQL>connect sys/java006$ as sysdba
+(sql에서는 이렇게 접속)
+
+--○ 다시 접속된 사용자 확인
+SQL> show user
+//--==>> USER is "SYS"
+
+
+--○ 오라클 서버 인스턴스 상태 조회(사용가능상태 여부 확인)
+--   전원의 on/off 여부 등 일반적으로 접속의 가능 여부를
+--   확인할 때 사용하는 명령
+SQL> select status from v$instance;
+--==>>
+/*
+STATUS
+------------------------
+OPEN
+*/
+--> 오라클 서버가 정상적으로 srartup 되어있음을 의미.
+
+
+--○ 두 번째로... 일반 사용자 계정인 『hr』로 연결 시도
+(참고
+sys	계정은 패스워드는 java006$으로 지정했는데
+테스트하는 계정이 있는데
+hr	은 lion
+scott	은 tiger	(express edition에는 없다)
+로 약속해놓았는데 요즘은 약속이 흐려짐)
+
+SQL> connect hr/lion
+//--==>>
+/*
+ERROR:
+ORA-28000: the account is locked
+
+Warning: You are no longer connected to ORACLE.
+*/
+--> 일반 사용자 계정인 『hr』은 잠겨있는 상태이므로
+--  오라클 서버 접속이 불가능한 상태
+
+--○ sys로 연결
+SQL> conn sys/java006$ as sysdba
+--==>>Connected.
+
+--○ 접속된 사용자 계정 확인
+SQL> show user
+//--==>>USER is "SYS"
+
+--○ 오라클 사용자 계정들의 상태 조회(확인) → sys로 접속한 상태
+SQL> set linesize 500			// 줄 사이즈 줄인거임
+SQL> select username, account_status from dba_users;
+/*
+//--==>>
+USERNAME                                                     ACCOUNT_STATUS
+------------------------------------------------------------ ----------------------------------------------------------------
+SYS                                                          OPEN
+SYSTEM                                                       OPEN
+ANONYMOUS                                                    OPEN
+APEX_PUBLIC_USER                                             LOCKED
+FLOWS_FILES                                                  LOCKED
+APEX_040000                                                  LOCKED
+OUTLN                                                        EXPIRED & LOCKED
+DIP                                                          EXPIRED & LOCKED
+ORACLE_OCM                                                   EXPIRED & LOCKED
+XS$NULL                                                      EXPIRED & LOCKED
+MDSYS                                                        EXPIRED & LOCKED
+
+USERNAME                                                     ACCOUNT_STATUS
+------------------------------------------------------------ ----------------------------------------------------------------
+CTXSYS                                                       EXPIRED & LOCKED
+DBSNMP                                                       EXPIRED & LOCKED
+XDB                                                          EXPIRED & LOCKED
+APPQOSSYS                                                    EXPIRED & LOCKED
+HR                                                           EXPIRED & LOCKED
+
+16 rows selected.
+*/
+--> 현재 hr 계정은 EXPIRED & LOCKED 인 상태
+
+--○ 계정 잠금 / 해제(현재 sys 로 연결된 상태...)
+SQL> alter user hr account unlock;
+User altered.
+
+--○ 잠금 해제된 사용자 게정(hr)으로 오라클 접속 시도
+SQL> conn hr/lion
+ERROR:
+ORA-01017: invalid username/password; logon denied
+Warning: You are no longer connected to ORACLE.
+--> 사용자 계정 및 패스워드가 잘못되었기 때문에 로그온이 거부된 상황
+--  즉, 유효하지 않은 계정 및 패스워드로 접근을 시도했다고 오라클이 안내하고 있는 상황
+
+
+--○ 계정 정보 변경(패스워드 설정 변경) → sys 로 접속...
+SQL> conn sys/java006$ as sysdba
+//--==>>Connected.
+
+SQL> show user
+//--==>>USER is "SYS"
+
+SQL> alter user hr identified by lion;
+//--==>>User altered.
+--> hr 계정으 패스워드를 lion으로 설정하겠다.
+
+
+--○ hr 계정 잠금을 해제하고, 패스워드를 재설정해서
+--   유효한 계정상태로 만든 후...
+--   다시 hr 계정으로 오라클 접속 시도
+SQL> conn hr/lion
+//--==>>Connected.
+
+
+--○ 접속된 사용자 계정 확인
+SQL> show user
+//--==>>USER is "HR"
+
+
+--○ 현재 오라클 서버의 사용자 계정 상태에 대한 정보 조회(hr인 상태...)
+SQL> select username, account_status from dba_users;
+//--==>>
+/*
+select username, account_status from dba_users
+                                     *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+*/
+--> hr 이라는 일반 사용자 계정을 통해서는
+--  dba_users 의 조회가 불가능한 상황임을 확인
+
+(
+사진1
+여기에는 데이터가 3건이 들어있는거임 7369 이호석 010- : 이거가 데이터 1건임 이 데이터의 건수를 이제는 레코드라고 부른다/ 즉 레코드 수가 3개이다.
+
+이러한 테이블이 여기 안에 저장되어야한다/ 테이블을 저장하는 공간을 TABLSESPACE라고 할것이다.
+
+
+
+사진 2
+가장 큰거 데이터베이스
+한칸은 테이블 스페이스
+안에 파일 하나는 테이블
+사진 3
+가장 큰거 데이터베이스
+큰 원은은 테이블 스페이스
+작은 원 하나는 테이블
+
+사진4
+테이블 스페이스에서 열람하는 거를 from~ 이렇게하고
+이렇게 꺼냈으면 거기 안에 여러 항목이 있을텐데 그 항목중에
+노란색들만 볼거야 이게 select임
+만약 이 표 이름이 MEMBER라면 SELECT 이름, 주소, 직책 FROM MEMBER 이런 형태로 SELECT문 구성함
+그게 select username, account_status from dba_users 이 구문임/ dba_users에서 username, account_status만 보겠다는거임
+
+그런데 앞에서 오류가 나왔는데 일반사용자 계정으로 보려고 하니까 오라클이 이런거 없다고함(전에 sys계정으로 들어가면 봤었음) 이게 오라클이 말하는 오라클 보안임
+)
+
+
+--○ host 명령어
+--   도스 명령 체계로 전환하거나
+--   라인 단위에서 도스 명령어 입력이 가능하다.
+--   유닉스 계열에서는 『host』명령어 뿐 아니라 『!』도 사용이 가능하다.
+--   하지만, 윈도우 계열에서는 『host』명령어만 사용이 가능하다.
+--   host 상태에서 빠져나갈 경우 『exit』명령어를 입력한다.
+
+
+
+
+
+
+
+
+
+
+
+

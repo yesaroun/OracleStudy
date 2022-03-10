@@ -752,12 +752,12 @@ ORDER BY HIREDATE;
 --   입사년도별 인원수를 조회한다.
 -- 내 풀이
 SELECT CASE GROUPING(T.입사년도) WHEN 0 THEN TO_CHAR(T.입사년도)
-                                 ELSE '전체'
-       END "입사년도"
-     , COUNT(*) "인원수"
-FROM
+						ELSE '전체'
+				END "입사년도"
+		 , COUNT(*) "인원수"
+  FROM
 (
-    SELECT TO_NUMBER(SUBSTR(TO_CHAR(HIREDATE), 1, 4)) "입사년도"
+    SELECT TO_NUMBER(EXTRACT(YEAR FROM HIREDATE)) "입사년도"
     FROM TBL_EMP
 ) T
 GROUP BY ROLLUP(T.입사년도);

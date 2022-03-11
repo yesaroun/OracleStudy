@@ -408,3 +408,5 @@ FROM TBL_STUDENTS;
 happy	이시우	010-9999-9999	강원도 횡성
 rainbow	김정용	010-2222-2222	서울 강남구
 */
+
+--TEMP

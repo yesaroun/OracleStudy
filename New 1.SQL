@@ -1,35 +1,81 @@
+SELECT *
+  FROM EMP;
+  
+SELECT ROW_NUMBER() OVER(ORDER BY ENAME) "테스트"
+     , ENAME "사원명", SAL "급여", HIREDATE "입사일"
+  FROM EMP
+ WHERE DEPTNO = 20
+ORDER BY ENAME;
+--==>>                          
+/*
+1	ADAMS	1100	1987-07-13
+2	FORD	3000	1981-12-03
+3	JONES	2975	1981-04-02
+4	SCOTT	3000	1987-07-13
+5	SMITH	 800	1980-12-17
+*/
 
 
-ACCEPT INPUT PROMPT '금액 입력';
+CREATE SEQUENCE SEO_BOARD    -- 기본적인 시퀀스 생성 구문
+START WITH 1                 -- 시작값
+INCREMENT BY 1               -- 증가값
+NOMAXVALUE                   -- 최대값
+NOCACHE;                     -- 캐시사용여부
+--==>> Sequence SEQ_BOARD이(가) 생성되었습니다.
 
-DECLARE
-	-- 주요 변수 선언
-	MONEY  NUMBER := &INPUT;    -- 연산을 위해 입력값을 담아둘 변수
-    MONEY2 NUMBER := &INPUT;    -- 결과 출력을 위해 입력값을 담아둘 변수
-		
-	M500   NUMBER;              -- 500원 짜리 갯수를 담아둘 변수
-    M100   NUMBER;
-    M50    NUMBER;
-    M10    NUMBER;
-BEGIN
-    -- 연산 및 처리
-    -- MONEY를 500으로 나눠서 몫을 취하고 나머지는 버린다. -- 500원의 갯수
-    M500 := TRUNC(MONEY / 500);
-    -- MONEY를 500으로 나눠서 몫은 버리고 나머지를 취한다. -- 500원의 갯수 확인하고 남은 금액         
-    MONEY := MOD(MONEY, 500);
-    
-    M100 := TRUNC(MONEY / 100);
-    MONEY := MOD(MONEY, 100);
-    
-    M50 := TRUNC(MONEY / 50);
-    MONEY := MOD(MONEY, 50);
-    
-    M10 := TRUNC(MONEY / 10);
-    MONEY := MOD(MONEY, 10);
-    
-    -- 결과 출력
-    DBMS_OUTPUT.PUT_LINE('입력받은 금액의 총액 : ' || MONEY2);
-    DBMS_OUTPUT.PUT_LINE('화폐단위 : 500원 : ' || M500 || '개, 100원 : ' || M100 || '개, 50원 : ' || M50 || '개, 10원 : ' || M10 || '개');
-END;
+DROP SEQUENCE SEO_BOARD;
 
-LOOP
+SELECT *
+  FROM EMP, DEPT;
+  
+SELECT *
+  FROM EMP, DEPT
+ WHERE EMP.DEPTNO = DEPT.DEPTNO;
+
+SELECT *
+  FROM EMP E, DEPT D
+ WHERE E.DEPTNO = D.DEPTNO;
+
+
+SELECT *
+  FROM EMP E, SALGRADE S
+ WHERE E.SAL BETWEEN S.LOSAL AND S.HISAL;
+
+SELECT *
+  FROM TBL_EMP;
+--> 19명 사원 중 부서번호를 가지지 못한 사원들은 5
+
+SELECT *
+  FROM TBL_EMP E, TBL_DEPT D
+ WHERE E.DEPTNO = D.DEPTNO;
+
+SELECT *
+  FROM TBL_EMP E, TBL_DEPT D
+ WHERE E.DEPTNO = D.DEPTNO(+);
+ 
+SELECT *
+  FROM TBL_EMP E, TBL_DEPT D
+ WHERE E.DEPTNO(+) = D.DEPTNO;
+
+SELECT *
+  FROM TBL_EMP E, TBL_DEPT D
+ WHERE E.DEPTNO;
+ 
+
+SELECT *
+  FROM EMP CROSS JOIN DEPT;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

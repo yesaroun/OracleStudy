@@ -113,7 +113,7 @@ CREATE SEQUENCE SEQ_BOARD       -- 기본적인 시퀀스 생성 구문
 START WITH 1                    -- 시작값
 INCREMENT BY 1                  -- 증가값
 NOMAXVALUE                      -- 최대값
-NOCACHE;                        -- 캐시사용어부
+NOCACHE;                        -- 캐시사용여부
 --==>> Sequence SEQ_BOARD이(가) 생성되었습니다.      --(테이블에 의존적인게 아니라 그냥 독립적으로 따로 만들었음)
 
 --★ 기존 잘못 데이터가 입력된 테이블 제거(휴지통 거치지 않고 제거)

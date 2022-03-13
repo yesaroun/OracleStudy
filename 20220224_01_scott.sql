@@ -1102,11 +1102,11 @@ FROM EMP E1
 ORDER BY 2, 3;
 
 SELECT E1.ENAME "사원명", E1.DEPTNO "부서번호", E1.HIREDATE "입사일", E1.SAL "급여"
-       , (SELECT SUM(E2.SAL)
+     , (SELECT SUM(E2.SAL)
           FROM EMP E2
-          WHERE E2.DEPTNO = E1.DEPTNO
-            AND E2.HIREDATE <= E1.HIREDATE ) "부서내입사별급여누적"
-FROM EMP E1
+         WHERE E2.DEPTNO = E1.DEPTNO
+           AND E2.HIREDATE <= E1.HIREDATE ) "부서내입사별급여누적"
+  FROM EMP E1
 ORDER BY 2, 3;
 --==>>
 /*

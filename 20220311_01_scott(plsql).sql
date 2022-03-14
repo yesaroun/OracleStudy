@@ -261,5 +261,61 @@ END;
 
 
 
+CREATE OR REPLACE PROCEDURE PRC_출고_UPDATE
+(V_출고번호     IN TBL_출고.출고번호%TYPE
+, V_변경수량    IN TBL_상품.재고수량%TYPE
+)
+IS 
+    USER_DEFINE_ERROR EXCEPTION;
+    V_상품코드 TBL_출고.상품코드%TYPE;
+    V_변경전재고 TBL_상품.재고수량%TYPE;
+    V_변경전출고 TBL_출고.출고수량%TYPE;
 
+BEGIN
+    -- 출고번호와 일치하는 상품코드
+    SELECT 상품코드 INTO V_상품코드
+    FROM TBL_출고
+    WHERE 출고번호=V_출고번호;
+
+    -- 변경전 재고수량
+    SELECT 재고수량 INTO V_변경전재고
+    FROM TBL_상품
+    WHERE 상품코드 = V_상품코드;
+    
+    -- 변경 전 출고수량
+    SELECT 출고수량 INTO V_변경전출고
+    FROM TBL_출고
+    WHERE 출고번호=V_출고번호;
+    
+    -- 만약 변경수량-원래출고수량 > 재고수량이라면 재고가부족한 상황이다.
+    IF V_변경수량 - V_변경전출고 > V_변경전재고
+        THEN RAISE USER_DEFINE_ERROR;
+    END IF;
+    
+
+
+    -- TBL_출고 TBL_상품 업데이트
+
+        UPDATE TBL_출고
+        SET 출고수량=V_변경수량
+        WHERE 출고번호=V_출고번호;
+        
+        UPDATE TBL_상품
+        SET 재고수량 = 재고수량 + (V_변경전출고 - V_변경수량)
+        WHERE 상품코드 = V_상품코드;
+    
+    
+    
+    
+    EXCEPTION
+    WHEN USER_DEFINE_ERROR
+        THEN RAISE_APPLICATION_ERROR(-20003, '재고수량이 부족합니다');
+        ROLLBACK;
+    WHEN OTHERS
+        THEN ROLLBACK;
+        
+    -- 커밋
+    COMMIT;    
+    
+END;
 

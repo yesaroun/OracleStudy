@@ -157,7 +157,7 @@ SELECT *
 --==>> 조회 결과 없음
 --(1로 돌아감)
 
---○ 생성한 TRIGGER 작종 여부 확인
+--○ 생성한 TRIGGER 작동 여부 확인
 --   → TBL_TEST1 테이블을 대상으로 INSERT, UPDATE, DELETE 수행
 INSERT INTO TBL_TEST1(ID, NAME, TEL)
 VALUES(1, '홍은혜', '010-1111-1111');
@@ -222,7 +222,7 @@ DELETE 쿼리가 실행되었습니다.	2022-03-14 15:31:39
 
 
 --■■■ BEFORE STATEMENT TRIGGER 상황 실습 ■■■--
--- ※ DML 작업에 대한 이벤트 기록
+-- ※ DML 작업 수행 전에 작업에 대한 가능 여부 확인
 INSERT INTO TBL_TEST1(ID, NAME, TEL)
 VALUES(4, '한충희', '010-4444-4444');
 --==>> 1 행 이(가) 삽입되었습니다.

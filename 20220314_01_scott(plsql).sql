@@ -649,7 +649,13 @@ END;
 --   TBL_상품 테이블의 재고수량 변동 트리거 작성
 --   트리거 명 : TRG_IBGO
 
-
+CREATE OR REPLACE TRIGGER TRG_IBGO
+        AFTER
+        INSERT OR UPDATE OR DELETE ON TBL_출고
+        FOR EACH ROW
+BEGIN
+    IF ()
+END;
 
 
 

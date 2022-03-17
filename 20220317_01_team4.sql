@@ -1,0 +1,98 @@
+SELECT USER
+FROM DUAL;
+--==>>TEAM4
+
+
+
+--------------------------------------------------------------------------------
+
+
+
+
+-- 2
+   -- 수정  끝나는 날 이후에 수정 불가 (끝나는날 이후(오늘) 오류) -> 오늘-날 > 0
+   -- 삭제  끝나는 날 이전에 삭제 불가 (끝나는날 이전(오늘) 오류) -> 오늘-날 < 0
+-- ○ COURSE OPEN 교수 삭제 프로시저
+CREATE OR REPLACE PROCEDURE PRC_OP_COU_TC_DELETE
+( V_OP_COURSE_CODE     IN COURSE_OPEN.OP_COURSE_CODE%TYPE
+)
+IS
+    V_END_DATE   COURSE_OPEN.END_DATE%TYPE;
+    V_TC_CODE   TEACHER_REGISTER.TEACHER_CODE%TYPE;
+    V_CHECK_DATE    NUMBER;
+    
+    USER_DEFINE_ERROR EXCEPTION;
+BEGIN
+    SELECT END_DATE INTO V_END_DATE
+      FROM COURSE_OPEN
+     WHERE OP_COURSE_CODE = V_OP_COURSE_CODE;
+    
+    V_CHECK_DATE := TO_NUMBER(SYSDATE - V_END_DATE);
+    -- 수강 기간중에 강사 삭제시 에러 발생
+    IF (V_CHECK_DATE < 0)
+        THEN RAISE USER_DEFINE_ERROR;
+    END IF;
+    
+    V_TC_CODE := '강사삭제';
+    
+    UPDATE COURSE_OPEN
+    SET TEACHER_CODE = V_TC_CODE
+    WHERE OP_COURSE_CODE = V_OP_COURSE_CODE;
+    
+    EXCEPTION
+    WHEN USER_DEFINE_ERROR
+        THEN RAISE_APPLICATION_ERROR(-20015,'교수를 삭제할 수 없습니다. 교수를 변경하세요.');
+             ROLLBACK;
+    WHEN OTHERS
+        THEN ROLLBACK;
+        
+    COMMIT;
+
+END;
+
+
+
+CREATE OR REPLACE PROCEDURE PRC_OP_COU_TEA_EDIT
+( V_OP_COURSE_CODE    IN COURSE_OPEN.OP_COURSE_CODE%TYPE
+, V_NEWTEA_CODE       IN COURSE_OPEN.TEACHER_CODE%TYPE  
+)
+IS 
+    V_END_DATE          COURSE_OPEN.END_DATE%TYPE;
+    V_CHECK_DATE        NUMBER;
+    
+     USER_DEFINE_ERROR   EXCEPTION;
+BEGIN
+    SELECT END_DATE INTO V_END_DATE
+      FROM COURSE_OPEN
+     WHERE COURSE_OPEN.OP_COURSE_CODE = V_OP_COURSE_CODE;
+
+    V_CHECK_DATE := TO_NUMBER(SYSDATE - V_END_DATE);
+    
+    IF(V_CHECK_DATE > 0 )
+        THEN RAISE USER_DEFINE_ERROR;
+    END IF;
+    
+    UPDATE COURSE_OPEN 
+    SET  TEACHER_CODE = V_NEWTEA_CODE
+    WHERE OP_COURSE_CODE = V_OP_COURSE_CODE;
+     -- 실행 구문;
+        
+    EXCEPTION
+    WHEN USER_DEFINE_ERROR
+        THEN RAISE_APPLICATION_ERROR(-20012,'해당 과정이 끝나 교수를 변경할 수 없습니다.');
+             ROLLBACK;
+    WHEN OTHERS
+        THEN ROLLBACK;
+        
+    COMMIT;
+END;
+
+SELECT *
+FROM VIEW_CONSTCHECK;
+
+--○ 테이블조회
+SELECT *
+FROM USER_TABLES;
+
+DESC SUBJECT;
+
